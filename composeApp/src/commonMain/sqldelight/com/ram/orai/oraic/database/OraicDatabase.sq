@@ -1,0 +1,82 @@
+-- Patients table
+CREATE TABLE patients (
+    id TEXT PRIMARY KEY NOT NULL,
+    surname TEXT NOT NULL,
+    given_name TEXT NOT NULL,
+    phone_number TEXT NOT NULL,
+    email TEXT NOT NULL,
+    address TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    dental_state_json TEXT NOT NULL
+);
+
+CREATE INDEX patients_created_at ON patients(created_at DESC);
+CREATE INDEX patients_updated_at ON patients(updated_at DESC);
+CREATE INDEX patients_name_search ON patients(surname, given_name);
+
+-- Get all patients ordered by updated_at
+selectAll:
+SELECT * FROM patients
+ORDER BY updated_at DESC;
+
+-- Get patient by ID
+selectById:
+SELECT * FROM patients
+WHERE id = ?;
+
+-- Search patients
+searchPatients:
+SELECT * FROM patients
+WHERE 
+    surname LIKE '%' || ? || '%' OR
+    given_name LIKE '%' || ? || '%' OR
+    phone_number LIKE '%' || ? || '%' OR
+    email LIKE '%' || ? || '%' OR
+    id LIKE '%' || ? || '%'
+ORDER BY updated_at DESC;
+
+-- Get recent patients
+selectRecent:
+SELECT * FROM patients
+ORDER BY updated_at DESC
+LIMIT ?;
+
+-- Insert patient
+insertPatient:
+INSERT INTO patients(
+    id, surname, given_name, phone_number, email, address,
+    created_at, updated_at, dental_state_json
+)
+VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- Update patient
+updatePatient:
+UPDATE patients
+SET
+    surname = ?,
+    given_name = ?,
+    phone_number = ?,
+    email = ?,
+    address = ?,
+    updated_at = ?,
+    dental_state_json = ?
+WHERE id = ?;
+
+-- Update patient dental state
+updatePatientDentalState:
+UPDATE patients
+SET
+    dental_state_json = ?,
+    updated_at = ?
+WHERE id = ?;
+
+-- Delete patient
+deletePatient:
+DELETE FROM patients
+WHERE id = ?;
+
+-- Check if patient exists
+patientExists:
+SELECT COUNT(*) > 0 FROM patients WHERE id = ?;
+
